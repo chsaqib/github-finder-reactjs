@@ -6,22 +6,16 @@ import axios from 'axios';
 import Search from './components/users/Search';
 import Alert from './components/layout/Alert';
 import About from './components/pages/About';
+import User from './components/users/User';
 import './App.css';
 
 class App extends React.Component {
   state = {
     users: [],
+    user: {},
     loading: false,
     alert: null
   };
-  /* async componentDidMount() {
-    this.setState({ loading: true });
-
-    const res = await axios.get(
-      `https://api.github.com/users?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
-    );
-    this.setState({ users: res.data, loading: false });
-  } */
 
   searchUsers = async text => {
     this.setState({ loading: true });
@@ -31,6 +25,16 @@ class App extends React.Component {
     this.setState({ users: res.data.items, loading: false });
   };
 
+  // Get single user Data
+  getUser = async username => {
+    this.setState({ loading: true });
+    const res = await axios.get(
+      `https://api.github.com/users/${username}?&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
+    );
+    this.setState({ user: res.data, loading: false });
+  };
+
+  //Clear users from the state
   clearUsers = () => {
     this.setState({ users: [], loading: false });
   };
@@ -42,7 +46,7 @@ class App extends React.Component {
   };
 
   render() {
-    const { users, loading } = this.state;
+    const { users, user, loading } = this.state;
     return (
       <Router>
         <div className="App">
@@ -67,6 +71,18 @@ class App extends React.Component {
                 )}
               />
               <Route exact path="/about" component={About}></Route>
+              <Route
+                exact
+                path="/user/:login"
+                render={props => (
+                  <User
+                    {...props}
+                    getUser={this.getUser}
+                    user={user}
+                    loading={loading}
+                  />
+                )}
+              ></Route>
             </Switch>
           </div>
         </div>
